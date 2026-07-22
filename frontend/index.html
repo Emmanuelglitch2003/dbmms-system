@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DE-PUNDIT BAND - Membership System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- LOGIN PAGE -->
+        <div id="login-page" class="page">
+            <div class="login-container">
+                <div class="logo">
+                    <h1>🎵 DE-PUNDIT BAND</h1>
+                    <p>Membership Management System</p>
+                </div>
+                <div id="login-alert"></div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" placeholder="Enter username" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="login-btn">Sign In</button>
+                </form>
+                <div class="login-footer">
+                    <p>Default: admin / Admin@2024</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="page" style="display:none;">
+            <div class="sidebar">
+                <div class="sidebar-brand">
+                    <h2>🎵 DBMMS</h2>
+                    <span>De-Pundit Band</span>
+                </div>
+                <nav>
+                    <a href="#" class="active" data-page="dashboard">
+                        <span class="icon">📊</span> Dashboard
+                    </a>
+                    <a href="#" data-page="register">
+                        <span class="icon">➕</span> Register
+                    </a>
+                    <a href="#" data-page="members">
+                        <span class="icon">👥</span> Members
+                        <span class="badge" id="memberCount">0</span>
+                    </a>
+                    <a href="#" data-page="reports">
+                        <span class="icon">📈</span> Reports
+                    </a>
+                    <a href="#" data-page="settings">
+                        <span class="icon">⚙️</span> Settings
+                    </a>
+                    <a href="#" data-page="logout" class="logout-link">
+                        <span class="icon">🚪</span> Logout
+                    </a>
+                </nav>
+            </div>
+
+            <div class="main-content">
+                <div class="header">
+                    <h1 id="page-title">Dashboard</h1>
+                    <div id="admin-info">
+                        Welcome, <strong id="admin-name">Admin</strong>
+                    </div>
+                </div>
+                <div id="page-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
