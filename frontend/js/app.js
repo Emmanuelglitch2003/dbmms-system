@@ -2,6 +2,17 @@
 // ============================================
 // STATE
 // ============================================
+
+// frontend/js/app.js
+// ============================================
+// APP CONFIGURATION
+// ============================================
+
+console.log('🎵 DE-PUNDIT BAND DBMMS v1.0');
+console.log(`🔗 API URL: ${typeof API_URL !== 'undefined' ? API_URL : 'Not set'}`);
+
+// ... rest of your app.js code
+
 const state = {
     admin: null,
     members: [],

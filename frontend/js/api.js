@@ -1,5 +1,26 @@
 // frontend/js/api.js
-const API_URL = 'http://localhost:5000/api';
+// ============================================
+// AUTO-DETECT ENVIRONMENT
+// ============================================
+
+// Detect if running locally or in production
+const isLocal = window.location.hostname === 'localhost' || 
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname === '';
+
+// Set API URL based on environment
+// CHANGE THIS URL AFTER DEPLOYMENT!
+const API_URL = isLocal 
+    ? 'http://localhost:5000/api'  // Local development
+    : 'https://dbmms-system.vercel.app/api';  // Production (UPDATE THIS!)
+
+console.log(`🌐 Running in ${isLocal ? 'DEVELOPMENT' : 'PRODUCTION'} mode`);
+console.log(`📡 API URL: ${API_URL}`);
+
+// ============================================
+// TOKEN MANAGEMENT
+// ============================================
+
 let authToken = null;
 
 function setToken(token) {
@@ -20,10 +41,15 @@ function getToken() {
     return authToken;
 }
 
+// ============================================
+// API CALL FUNCTION
+// ============================================
+
 async function apiCall(endpoint, options = {}) {
     const token = getToken();
     const headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
     };
     
     if (token) {
@@ -31,12 +57,16 @@ async function apiCall(endpoint, options = {}) {
     }
     
     const config = {
-        headers,
+        headers: headers,
+        credentials: 'include',
         ...options
     };
     
     try {
-        const response = await fetch(API_URL + endpoint, config);
+        const url = API_URL + endpoint;
+        console.log(`📡 API Call: ${url}`);
+        
+        const response = await fetch(url, config);
         const data = await response.json();
         
         if (!response.ok) {
@@ -53,12 +83,20 @@ async function apiCall(endpoint, options = {}) {
     }
 }
 
+// ============================================
+// AUTH API
+// ============================================
+
 const authAPI = {
     login: (username, password) => {
         return apiCall('/auth/login', {
             method: 'POST',
             body: JSON.stringify({ username, password })
         });
+    },
+    logout: () => {
+        setToken(null);
+        return Promise.resolve({ message: 'Logout successful' });
     },
     checkAuth: () => {
         const token = getToken();
@@ -68,6 +106,10 @@ const authAPI = {
         return apiCall('/auth/check');
     }
 };
+
+// ============================================
+// MEMBER API
+// ============================================
 
 const memberAPI = {
     getAll: (params = {}) => {
@@ -97,9 +139,28 @@ const memberAPI = {
     }
 };
 
+// ============================================
+// REPORT API
+// ============================================
+
 const reportAPI = {
     generate: (type, year) => {
         const params = new URLSearchParams({ type, year }).toString();
         return apiCall('/reports/data?' + params);
     }
 };
+
+// ============================================
+// EXPOSE FOR GLOBAL ACCESS
+// ============================================
+
+// Make functions globally accessible for inline onclick handlers
+window.setToken = setToken;
+window.getToken = getToken;
+window.authAPI = authAPI;
+window.memberAPI = memberAPI;
+window.reportAPI = reportAPI;
+window.API_URL = API_URL;
+
+console.log('✅ API Module Loaded Successfully!');
+console.log(`🔗 Connected to: ${API_URL}`);
