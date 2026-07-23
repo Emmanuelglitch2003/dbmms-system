@@ -21,6 +21,8 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "MONGODB_URI": "mongodb+srv://dbmms_user:DbMms2024@cluster0.xxxxx.mongodb.net/dbmms?retryWrites=true&w=majority",
+    "JWT_SECRET": "your-super-secret-jwt-key-change-this"
   }
 }

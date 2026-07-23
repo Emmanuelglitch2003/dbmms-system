@@ -3,11 +3,18 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
+const { connectDB } = require('../config/database-mongo');
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
+
+// ============================================
+// CONNECT TO MONGODB
+// ============================================
+connectDB().catch(err => {
+    console.error('Failed to connect to MongoDB:', err.message);
+});
 
 // ============================================
 // MIDDLEWARE
@@ -29,9 +36,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ============================================
 // ROUTES
 // ============================================
-app.use('/api/auth', require('../routes/authRoutes'));
-app.use('/api/members', require('../routes/memberRoutes'));
-app.use('/api/reports', require('../routes/reportRoutes'));
+app.use('/api/auth', require('../routes/authRoutesMongo'));
+app.use('/api/members', require('../routes/memberRoutesMongo'));
 
 // ============================================
 // HEALTH CHECK
@@ -40,6 +46,7 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
+        database: 'MongoDB Atlas',
         environment: process.env.NODE_ENV || 'development'
     });
 });
@@ -53,13 +60,6 @@ app.use((err, req, res, next) => {
         error: 'Internal server error',
         message: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
-});
-
-// ============================================
-// 404 HANDLER
-// ============================================
-app.use((req, res) => {
-    res.status(404).json({ error: 'Route not found' });
 });
 
 module.exports = app;
