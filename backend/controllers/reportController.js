@@ -1,6 +1,7 @@
 // backend/controllers/reportController.js
 const { query } = require('../config/database');
 
+// Get report data
 const getReportData = async (req, res) => {
     try {
         const { type, year } = req.query;
@@ -78,7 +79,7 @@ const getReportData = async (req, res) => {
             generated_at: new Date().toISOString()
         });
     } catch (error) {
-        console.error('Report error:', error);
+        console.error('Report error:', error.message);
         res.status(500).json({ error: 'Server error' });
     }
 };

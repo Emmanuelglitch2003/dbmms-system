@@ -5,36 +5,41 @@ const { queryOne } = require('../config/database');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this';
 
+// Login
 const login = async (req, res) => {
     try {
         const { username, password } = req.body;
         console.log('🔐 Login attempt:', username);
-        
+
         if (!username || !password) {
             return res.status(400).json({ error: 'Username and password required' });
         }
-        
+
+        // Find admin by username OR email
         const admin = await queryOne(
             'SELECT * FROM admins WHERE username = ? OR email = ?',
             [username, username]
         );
-        
+
         if (!admin) {
             console.log('❌ User not found:', username);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-        
+
+        // Check password
         const isMatch = await bcrypt.compare(password, admin.password_hash);
         if (!isMatch) {
             console.log('❌ Invalid password for:', username);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-        
+
+        // Update last login
         await queryOne(
             'UPDATE admins SET last_login_at = NOW() WHERE id = ?',
             [admin.id]
         );
-        
+
+        // Generate JWT
         const token = jwt.sign(
             {
                 id: admin.id,
@@ -46,9 +51,9 @@ const login = async (req, res) => {
             JWT_SECRET,
             { expiresIn: '24h' }
         );
-        
+
         console.log('✅ Login successful:', admin.username);
-        
+
         res.json({
             message: 'Login successful',
             token,
@@ -61,11 +66,12 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ Login error:', error);
+        console.error('❌ Login error:', error.message);
         res.status(500).json({ error: 'Server error during login' });
     }
 };
 
+// Check authentication
 const checkAuth = async (req, res) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -73,17 +79,17 @@ const checkAuth = async (req, res) => {
         if (!token) {
             return res.json({ authenticated: false });
         }
-        
+
         const decoded = jwt.verify(token, JWT_SECRET);
         const admin = await queryOne(
             'SELECT id, full_name, username, email, role FROM admins WHERE id = ?',
             [decoded.id]
         );
-        
+
         if (!admin) {
             return res.json({ authenticated: false });
         }
-        
+
         res.json({
             authenticated: true,
             admin

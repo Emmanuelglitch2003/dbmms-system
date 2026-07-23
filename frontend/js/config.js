@@ -1,47 +1,77 @@
-// frontend/js/config.js
-// ============================================
-// APPLICATION CONFIGURATION
-// ============================================
+// backend/config/database.js
+const mysql = require('mysql2/promise');
+const dotenv = require('dotenv');
 
-const CONFIG = {
-    // Application name
-    APP_NAME: 'DE-PUNDIT BAND DBMMS',
-    APP_VERSION: '1.0.0',
-    
-    // API Configuration - Auto-detects environment
-    get API_URL() {
-        const isLocal = window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1';
-        
-        // UPDATE THIS URL AFTER DEPLOYMENT!
-        return isLocal 
-            ? 'http://localhost:5000/api'
-            : 'https://dbmms-system.vercel.app/api'; // ← CHANGE THIS!
-    },
-    
-    // Feature flags
-    FEATURES: {
-        enablePhotoUpload: false,
-        enableQRCode: false,
-        enableEmailNotifications: false
-    },
-    
-    // Security
-    SESSION_TIMEOUT: 1800, // 30 minutes in seconds
-    MAX_LOGIN_ATTEMPTS: 5,
-    
-    // Pagination
-    DEFAULT_PAGE_SIZE: 20,
-    MAX_PAGE_SIZE: 100,
-    
-    // Date format
-    DATE_FORMAT: 'YYYY-MM-DD',
-    DISPLAY_DATE_FORMAT: 'MMM DD, YYYY'
+dotenv.config();
+
+// Create connection pool
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'dbmms',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+// Test database connection
+const testConnection = async () => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('✅ Database connected successfully!');
+        connection.release();
+        return true;
+    } catch (error) {
+        console.error('❌ Database connection failed:', error.message);
+        return false;
+    }
 };
 
-// Export configuration
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CONFIG;
-}
+// Execute query
+const query = async (sql, params = []) => {
+    try {
+        const [rows] = await pool.execute(sql, params);
+        return rows;
+    } catch (error) {
+        console.error('Query error:', error.message);
+        throw error;
+    }
+};
 
-console.log('📋 Config loaded:', CONFIG.APP_NAME, 'v' + CONFIG.APP_VERSION);
+// Get single row
+const queryOne = async (sql, params = []) => {
+    const rows = await query(sql, params);
+    return rows[0] || null;
+};
+
+// Generate membership ID
+const generateMembershipId = async () => {
+    const year = new Date().getFullYear();
+    const prefix = `DPB-${year}-`;
+    
+    const sql = `SELECT membership_id FROM members WHERE membership_id LIKE ? ORDER BY membership_id DESC LIMIT 1`;
+    const result = await queryOne(sql, [`${prefix}%`]);
+    
+    let sequence = 1;
+    if (result && result.membership_id) {
+        const parts = result.membership_id.split('-');
+        if (parts.length === 3) {
+            const lastSeq = parseInt(parts[2]);
+            if (!isNaN(lastSeq)) {
+                sequence = lastSeq + 1;
+            }
+        }
+    }
+    
+    return `${prefix}${String(sequence).padStart(4, '0')}`;
+};
+
+module.exports = {
+    pool,
+    query,
+    queryOne,
+    testConnection,
+    generateMembershipId
+};

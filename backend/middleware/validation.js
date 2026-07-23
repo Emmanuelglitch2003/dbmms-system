@@ -1,9 +1,11 @@
 // backend/middleware/validation.js
 const { body, validationResult } = require('express-validator');
 
+// Validate member registration
 const validateMember = [
     body('full_name').notEmpty().withMessage('Full name is required'),
-    body('date_of_birth').notEmpty().withMessage('Date of birth is required'),
+    body('date_of_birth').notEmpty().withMessage('Date of birth is required')
+        .isISO8601().withMessage('Invalid date format'),
     body('gender').isIn(['Male', 'Female', 'Other']).withMessage('Invalid gender'),
     body('nationality').notEmpty().withMessage('Nationality is required'),
     body('phone_call').notEmpty().withMessage('Phone number is required'),
@@ -16,11 +18,13 @@ const validateMember = [
     body('status').isIn(['pending', 'approved', 'rejected']).withMessage('Invalid status')
 ];
 
+// Validate login
 const validateLogin = [
     body('username').notEmpty().withMessage('Username is required'),
     body('password').notEmpty().withMessage('Password is required')
 ];
 
+// Handle validation errors
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

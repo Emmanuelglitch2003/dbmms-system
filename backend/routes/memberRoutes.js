@@ -5,9 +5,13 @@ const memberController = require('../controllers/memberController');
 const { authenticate } = require('../middleware/auth');
 const { validateMember, handleValidationErrors } = require('../middleware/validation');
 
+// All routes require authentication
 router.use(authenticate);
 
+// Get member statistics
 router.get('/stats', memberController.getMemberStats);
+
+// CRUD operations
 router.get('/', memberController.getMembers);
 router.get('/:id', memberController.getMember);
 router.post('/', validateMember, handleValidationErrors, memberController.createMember);

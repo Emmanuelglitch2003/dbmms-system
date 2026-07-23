@@ -1,18 +1,20 @@
 // frontend/js/api.js
 // ============================================
-// AUTO-DETECT ENVIRONMENT
+// ENVIRONMENT DETECTION
 // ============================================
 
-// Detect if running locally or in production
 const isLocal = window.location.hostname === 'localhost' || 
                 window.location.hostname === '127.0.0.1' ||
                 window.location.hostname === '';
 
-// Set API URL based on environment
-// CHANGE THIS URL AFTER DEPLOYMENT!
+// ============================================
+// API URL - Auto-detects environment
+// ============================================
+
+// UPDATE THIS URL AFTER DEPLOYMENT!
 const API_URL = isLocal 
-    ? 'http://localhost:5000/api'  // Local development
-    : 'https://dbmms-system.vercel.app/api';  // Production (UPDATE THIS!)
+    ? 'http://localhost:5000/api'
+    : 'https://dbmms-system.vercel.app/api';
 
 console.log(`🌐 Running in ${isLocal ? 'DEVELOPMENT' : 'PRODUCTION'} mode`);
 console.log(`📡 API URL: ${API_URL}`);
@@ -154,7 +156,6 @@ const reportAPI = {
 // EXPOSE FOR GLOBAL ACCESS
 // ============================================
 
-// Make functions globally accessible for inline onclick handlers
 window.setToken = setToken;
 window.getToken = getToken;
 window.authAPI = authAPI;

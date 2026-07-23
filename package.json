@@ -1,0 +1,13 @@
+{
+  "name": "dbmms-system",
+  "version": "1.0.0",
+  "description": "DE-PUNDIT BAND Membership Management System",
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "start": "cd backend && npm start",
+    "vercel-build": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
